@@ -19,7 +19,7 @@
 - [doc](http://wiki.osdev.org/GCC_Cross-Compiler)
 - [**Avec quoi on compile ?**](#cross-compilateur)
 - [**Qu'est ce qu'on compile ?**](#elements-a-compiler)
-- [**Creer son propre cross compiler**](#create-your-own-cross-compiler)
+- [**Creer son propre cross compiler**](#get-cross-compiler)
 
 ### Cross compilateur
 
@@ -58,37 +58,10 @@ On désactive toutes ces options (-ffreestanding, -nostdlib, -mno-red-zone) pour
 | 3️⃣ Link final | `boot.o + kernel.o` | `kernel.bin` (exécutable) |
 | 4️⃣ Génération ISO | `kernel.bin` + GRUB | `os.iso` |
 
-### Create your own cross compiler
-
-2 choix:
+### Get Cross Compiler
 
 - telecharger le cross compiler : [prebuilt here](http://wiki.osdev.org/GCC_Cross-Compiler#Prebuilt_Toolchains)
     - choose [i386-elf 7.5.0 target](https://newos.org/toolchains/i386-elf-7.5.0-Linux-x86_64.tar.xz)
-- compiler nous meme le cross compiler en suivant les etapes suivantes:
-    - [tuto cross compiler](http://wiki.osdev.org/GCC_Cross-Compiler)
-
-#### Dependances:
-
-```sh
-sudo apt install build-essential bison flex libgmp -dev libmpc-dev libmpfr-dev texinfo libisl-dev
-```
-
-On pourrait avoir besoin de retelecharger GCC et Binutils pour compiler le cross compilateur, si ceux sur linux ne font pas le taf:
-
-- [GCC downaload](https://www.gnu.org/software/gcc/)
-- [Binutils download](https://www.gnu.org/software/binutils/)
-
-#### Build
-
- ```sh
-export PREFIX="$HOME/opt/cross"
-export TARGET=i686-elf
-export PATH="$PREFIX/bin:$PATH"
- ```
-
-```sh
-# j'ai pas tout mis, parce que si ca fonctionne, c'est bcp plus simple de faire de telecharger le cross compiler
-```
 
 ## Notions
 
@@ -189,6 +162,7 @@ fi
 ### Booting the kernel
 
 ```sh
+sudo apt install xorriso
 mkdir -p isodir/boot/grub
 cp myos.bin isodir/boot/myos.bin
 cp grub.cfg isodir/boot/grub/grub.cfg
@@ -198,5 +172,6 @@ grub-mkrescue -o myos.iso isodir
 ### Launching with QEMU
 
 ```sh
+sudo apt install qemu-system-i386 -y
 qemu-system-i386 -cdrom myos.iso
 ```
