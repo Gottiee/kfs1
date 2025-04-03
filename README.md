@@ -4,19 +4,22 @@
 
 - le bios
     - Le bios / UEFI cherche le bootloader sur un peripherique de stockage
-    - il lit le MBR (master boot record) pour trouver le secteur de boot
+    - il lit le [MBR (master boot record)](#mbr-master-boot-record) pour trouver le secteur de boot
 - Le bootloader
     - Charge Grub (ou autre) en memoir
     - anylse les fichiers de conf (grub.cfg)
 - grub
     - verifie si le kernel est compatible avec le standart Multiboot
     - il place le kernel en memeoir et lui passe la main
+    - grub saute a l'address _start definie dans [boot.s](./src/boot.s)
 - kernel commence son exec
 
 ## Compilation
 
-[**Avec quoi on compile ?**](#cross-compilateur)
-[**Qu'est ce qu'on compile ?**](#elements-a-compiler)
+- [doc](http://wiki.osdev.org/GCC_Cross-Compiler)
+- [**Avec quoi on compile ?**](#cross-compilateur)
+- [**Qu'est ce qu'on compile ?**](#elements-a-compiler)
+- [**Creer son propre cross compiler**](#create-your-own-cross-compiler)
 
 ### Cross compilateur
 
@@ -55,17 +58,41 @@ On désactive toutes ces options (-ffreestanding, -nostdlib, -mno-red-zone) pour
 | 3️⃣ Link final | `boot.o + kernel.o` | `kernel.bin` (exécutable) |
 | 4️⃣ Génération ISO | `kernel.bin` + GRUB | `os.iso` |
 
-- [doc](http://wiki.osdev.org/GCC_Cross-Compiler)
+### Create your own cross compiler
+
+2 choix:
+
+- telecharger le cross compiler : [prebuilt here](http://wiki.osdev.org/GCC_Cross-Compiler#Prebuilt_Toolchains)
+    - choose [i386-elf 7.5.0 target](https://newos.org/toolchains/i386-elf-7.5.0-Linux-x86_64.tar.xz)
+- compiler nous meme le cross compiler en suivant les etapes suivantes:
+    - [tuto cross compiler](http://wiki.osdev.org/GCC_Cross-Compiler)
+
+#### Dependances:
+
+```sh
+sudo apt install build-essential bison flex libgmp -dev libmpc-dev libmpfr-dev texinfo libisl-dev
+```
+
+On pourrait avoir besoin de retelecharger GCC et Binutils pour compiler le cross compilateur, si ceux sur linux ne font pas le taf:
+
+- [GCC downaload](https://www.gnu.org/software/gcc/)
+- [Binutils download](https://www.gnu.org/software/binutils/)
+
+#### Build
+
+ ```sh
+export PREFIX="$HOME/opt/cross"
+export TARGET=i686-elf
+export PATH="$PREFIX/bin:$PATH"
+ ```
+
+```sh
+# j'ai pas tout mis, parce que si ca fonctionne, c'est bcp plus simple de faire de telecharger le cross compiler
+```
 
 ## Notions
 
 ### MBR (master boot record)
-
-Excellente question ! Voyons en détail ce qu’est le **MBR (Master Boot Record)** et son rôle dans le processus de démarrage.  
-
----
-
-## 📌 **Le MBR (Master Boot Record), c’est quoi ?**  
 
 Le **MBR** est un tout petit morceau de code stocké **au tout début d’un disque dur ou d’un autre périphérique de stockage (clé USB, SSD, etc.)**. Il **contient les informations nécessaires au boot du système**.  
 
@@ -96,10 +123,17 @@ Quand un PC démarre, **le BIOS cherche un bootloader** sur les périphériques 
 No bootable device -- insert boot disk and press any key
 ```
 
-### MBR vs GPT : Une alternative moderne
+#### MBR vs GPT : Une alternative moderne
 Le MBR est **un ancien standard**, limité à **4 partitions principales et 2 To de stockage maximum**.  
 Les disques modernes utilisent **GPT (GUID Partition Table)**, qui est plus flexible.  
 💡 **GPT ne contient pas de MBR**, mais un **"Protective MBR"** pour compatibilité avec les anciens systèmes.
+
+### VGA Text Mode Buffer
+
+- 0xB8000 est une adresse réservée pour l'affichage texte sur x86.
+- Écrire en 0xB8000 met directement du texte à l’écran sans driver.
+- Chaque caractère prend 2 octets (ASCII + couleur).
+- C’est la façon la plus simple d’afficher quelque chose dans un kernel minimaliste.
 
 ## Tuto
 
@@ -111,3 +145,58 @@ Les disques modernes utilisent **GPT (GUID Partition Table)**, qui est plus flex
 - The GNU Assembler from Binutils (or optionally NASM) to assemble instructions into object files containing machine code. (compile asm)
 - The GNU Compiler Collection to compile your high level code into assembly. (gcc)
 - The GRUB bootloader to bootload your kernel using the Multiboot boot protocol that loads us into 32-bit protected mode with paging disabled.
+
+### Structure
+
+```
+src
+|____ boot.s (kernel entry point that sets up the processor environment)
+|____ kernel.c (kernel routines)
+|____ linker.ld (linking above files)
+```
+
+### assemble boot
+
+```sh
+#or i386 ?
+i686-elf-as boot.s -o boot.o 
+```
+
+### Write kernel
+
+```sh
+i686-elf-gcc -c kernel.c -o kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+```
+
+### Linking Kernel and boot 
+
+```sh
+i686-elf-gcc -T linker.ld -o myos.bin -ffreestanding -O2 -nostdlib boot.o kernel.o -lgcc
+```
+
+### Verification
+
+Run to verify multiboot
+
+```sh
+if grub-file --is-x86-multiboot myos.bin; then
+  echo multiboot confirmed
+else
+  echo the file is not multiboot
+fi
+```
+
+### Booting the kernel
+
+```sh
+mkdir -p isodir/boot/grub
+cp myos.bin isodir/boot/myos.bin
+cp grub.cfg isodir/boot/grub/grub.cfg
+grub-mkrescue -o myos.iso isodir
+```
+
+### Launching with QEMU
+
+```sh
+qemu-system-i386 -cdrom myos.iso
+```
