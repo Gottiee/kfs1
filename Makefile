@@ -23,7 +23,11 @@ LINK_FLAG = -ffreestanding \
 			-O2 \
 			-nostdlib
 
-CFILES = src/kernel.c
+CFILES = src/c/kernel.c \
+src/c/printf.c \
+src/c/utils.c \
+src/c/cursor.c \
+src/c/input.c \
 
 OBJ = $(CFILES:.c=.o)
 
