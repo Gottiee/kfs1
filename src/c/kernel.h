@@ -54,4 +54,7 @@ void terminal_putchar(char c);
 //input.c
 void keyboard_handler();
 
+//idt.c
+void idt_init();
+
 #endif

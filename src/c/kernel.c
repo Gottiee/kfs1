@@ -98,6 +98,8 @@ void kernel_main(void)
 	terminal_setcolor(vga_entry_color(VGA_COLOR_BLUE, VGA_COLOR_BLACK));	
 	write("anvicent");
 	terminal_setcolor(vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK));
-	write("+#+  +:+       +#+        */\n/*                          +#+#+#+#+#+   +#+           */\n/*                               #+#    #+#             */\n/*                              ###   ########.fr       */\n/*                                                      */\n/* **************************************************** */\n");
-	keyboard_handler();
+	write("     +#+  +:+       +#+        */\n/*                          +#+#+#+#+#+   +#+           */\n/*                               #+#    #+#             */\n/*                              ###   ########.fr       */\n/*                                                      */\n/* **************************************************** */\n");
+	while(1){
+		keyboard_handler();
+	}
 }

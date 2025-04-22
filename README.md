@@ -175,3 +175,7 @@ grub-mkrescue -o myos.iso isodir
 sudo apt install qemu-system-i386 -y
 qemu-system-i386 -cdrom myos.iso
 ```
+
+## DOCU
+
+https://github.com/JulesRF/KFS1/blob/main/boot/source/keyboard.c#L150

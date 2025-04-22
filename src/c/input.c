@@ -9,18 +9,26 @@ char scancode_to_ascii[128] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 };
 
-unsigned char port_byte_in(unsigned short port)
+unsigned char inb(unsigned short port)
 {
     unsigned char result;
     __asm__ volatile ("inb %1, %0" : "=a"(result) : "Nd"(port));
     return result;
 }
 
+uint8_t read_input()
+{
+    while(!(inb(0x64) & 1)){};
+	return inb(0x60);
+}
+
 void keyboard_handler()
 {
-    uint8_t scancode = port_byte_in(0x60);
+    uint8_t scancode = read_input();
 
-    if (scancode < 128) {
+    if (scancode & 0x80) {
+        return;
+    } else {
         char c = scancode_to_ascii[scancode];
         if (c) {
             terminal_putchar(c);
