@@ -13,11 +13,11 @@ CFLAGS = -fno-builtin \
 		 -nostdlib \
 		 -nodefaultlibs \
 		 -Wall \
-		 -Werror \
 		 -Wextra \
 		 -std=gnu99 \
 		 -ffreestanding \
 		 -O2
+		#  -Werror \
 
 LINK_FLAG = -ffreestanding \
 			-O2 \
@@ -28,6 +28,7 @@ src/c/printf.c \
 src/c/utils.c \
 src/c/cursor.c \
 src/c/input.c \
+src/c/output.c \
 
 OBJ = $(CFILES:.c=.o)
 

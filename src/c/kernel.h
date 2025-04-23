@@ -37,24 +37,30 @@ enum vga_color {
 #define VGA_WIDTH   80
 #define VGA_HEIGHT  25
 #define VGA_MEMORY  0xB8000 
+#define VGA_SIZE 	80 * 25
 
 // utils.c
 int	strncmp(const char *s1, const char *s2, size_t n);
 int	atoi(const char *str);
 char *strcpy(char *dest, char *src);
 size_t strlen(const char* str);
+void *memcpy(void *dst, const void *src, size_t n);
+void *memset(void *b, int c, size_t len);
 
 // cursor.c
 void update_cursor(int x, int y);
 void outb(uint16_t port, uint8_t value);
 
-// kernel.c
+// output.c
 void terminal_putchar(char c);
+void delete_char();
+void terminal_initialize(void);
+void terminal_setcolor(uint8_t color);
+void write(const char* data);
+uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg);
+void switch_screen(uint8_t screen);
 
 //input.c
 void keyboard_handler();
-
-//idt.c
-void idt_init();
 
 #endif
