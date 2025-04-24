@@ -14,17 +14,16 @@ CFLAGS = -fno-builtin \
 		 -nodefaultlibs \
 		 -Wall \
 		 -Wextra \
+		 -Werror \
 		 -std=gnu99 \
 		 -ffreestanding \
 		 -O2
-		#  -Werror \
 
 LINK_FLAG = -ffreestanding \
 			-O2 \
 			-nostdlib
 
 CFILES = src/c/kernel.c \
-src/c/printf.c \
 src/c/utils.c \
 src/c/cursor.c \
 src/c/input.c \
@@ -46,7 +45,6 @@ I386AS = i386-elf-as
 
 RM = rm -rf
 
-# all: boot $(OBJ) link iso
 all : $(ISO)
 
 

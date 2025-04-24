@@ -11,17 +11,16 @@ size_t column[5];
 
 void switch_screen(uint8_t screen)
 {
-    int index = 0;
     if (screen == actual_screen)
         return;
     memcpy(vga_buffer[actual_screen], terminal_buffer, VGA_SIZE * sizeof(uint16_t));
     memcpy(terminal_buffer, vga_buffer[screen], VGA_SIZE * sizeof(uint16_t));
-    actual_screen = screen;
     row[actual_screen] = terminal_row;
     column[actual_screen] = terminal_column;
     terminal_row = row[screen];
     terminal_column = column[screen];
     update_cursor(terminal_column, terminal_row);
+    actual_screen = screen;
 }
 
 uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) 
@@ -44,7 +43,6 @@ void terminal_scroll()
     for (size_t x = 0; x < VGA_WIDTH; x++) {
         terminal_buffer[(VGA_HEIGHT - 1) * VGA_WIDTH + x] = vga_entry(' ', terminal_color);
     }
-
     terminal_row = VGA_HEIGHT - 1;
 }
 
